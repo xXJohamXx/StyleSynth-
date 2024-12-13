@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.env
+.env.*
+venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Project specific
+data/letterboxd/*.csv
+*.csv
+output/
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db# Package
+*.egg-info/
+dist/
+build/
+
+# Vector DB
+.vectordb/

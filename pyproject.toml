@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "stylesynth"
+version = "0.1.0"
+description = "LLM‑Powered Movie Review Generation Engine"
+authors = ["Jonah Hamilton <jonah.hamilton@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+langchain = "^0.3.11"
+langchain-openai = "^0.2.12"
+openai = "^1.57.3"
+chromadb = "^0.5.23"
+pandas = "^2.2.3"
+numpy = "^1.22.4"
+python-slugify = "^8.0.4"
+aiohttp = "^3.11.10"
+asyncio = "^3.4.3"
+tenacity = "^9.0.0"
+pytest = "^8.3.4"
+pytest-asyncio = "^0.24.0"
+isort = "^5.13.2"
+python-dotenv = "^1.0.1"
+pydantic = "^2.10.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
