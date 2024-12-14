@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 import chromadb
-from chromadb.errors import IDAlreadyExistsError
 
 logger = logging.getLogger(__name__)
 
@@ -21,30 +20,19 @@ class VectorStore:
         )
 
     async def store_movie(self, movie_title: str, metadata: dict, embedding: List[float]) -> bool:
-        """Store a movie with its embedding and metadata if it doesn't exist."""
+        """Store a movie with its embedding and metadata."""
         movie_id = metadata.get("id")
         if not movie_id:
             logger.error(f"No ID provided for movie: {movie_title}")
             return False
 
         try:
-            # Check if movie exists
-            existing = self.movies_collection.get(ids=[movie_id], include=["metadatas"])
-
-            if existing and existing["ids"]:
-                logger.info(f"Movie already exists: {movie_title}")
-                return False
-
-            # Store new movie
             self.movies_collection.add(
                 documents=[movie_title], metadatas=[metadata], embeddings=[embedding], ids=[movie_id]
             )
             logger.info(f"Successfully stored movie: {movie_title}")
             return True
 
-        except IDAlreadyExistsError:
-            logger.info(f"Movie ID already exists: {movie_title}")
-            return False
         except Exception as e:
             logger.error(f"Error storing movie {movie_title}: {e}")
             return False

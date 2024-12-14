@@ -12,7 +12,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 
 from .config import embeddings, llm
 from .llm import LLMService
-from .schemas import PersonalReviewStyle
+from .schemas import Movie, PersonalReviewStyle
 from .vector_store import VectorStore
 
 
@@ -55,29 +55,30 @@ class ReviewStyleAnalyzer:
     async def _process_batch(self, batch: pd.DataFrame):
         """Process a batch of movies with rate limiting"""
 
-        embedding_tasks = []
-        for _, row in batch.iterrows():
-            movie_context = f"{row.get('name', '')} {row.get('year', '')} {row.get('genres', '')}"
-            embedding_tasks.append(self.embeddings.aembed_query(movie_context))
-        embeddings = await asyncio.gather(*embedding_tasks)
+        # Create Movie objects for new movies
+        new_movies = [
+            Movie.from_row(row, slugify(f"{row.get('Name', '')}-{row.get('Year', '')}"))
+            for _, row in batch.iterrows()
+            if not await self.vector_store.get_movie_by_id(slugify(f"{row.get('Name', '')}-{row.get('Year', '')}"))
+        ]
 
-        # Store movies
-        for (_, row), embedding in zip(batch.iterrows(), embeddings):
-            movie_id = slugify(f"{row.get('Name', '')}-{row.get('Year', '')}")
+        if new_movies:
+            print(f"Generating embeddings for {len(new_movies)} new movies...")
 
-            metadata = {
-                "id": movie_id,
-                "title": row.get("Name", ""),
-                "year": row.get("Year", 0),
-                "genres": row.get("genres", ""),
-                "runtime": row.get("runtimeMinutes", 0),
-            }
+            # Generate embeddings in parallel
+            embeddings = await asyncio.gather(*(self.embeddings.aembed_query(movie.context) for movie in new_movies))
 
-            await self.vector_store.store_movie(
-                movie_title=row.get("Name", ""),
-                metadata=metadata,
-                embedding=embedding,
+            # Store movies with their embeddings
+            await asyncio.gather(
+                *(
+                    self.vector_store.store_movie(
+                        movie_title=movie.title, metadata=movie.to_metadata(), embedding=embedding
+                    )
+                    for movie, embedding in zip(new_movies, embeddings)
+                )
             )
+        else:
+            print("All movies in batch already exist in database.")
 
     async def _analyze_vocabulary(self, reviews_df: pd.DataFrame) -> Dict:
         """Analyze vocabulary patterns in reviews"""
