@@ -12,67 +12,82 @@ class LLMService:
         self.llm = llm
         self.tools = self._initialize_tools()
 
-    async def analyze_text(self, text: str, prompt_template: str, temperature: float = 0.3) -> Union[Dict, List, str]:
+    async def analyze_text(
+        self, text: str, prompt: ChatPromptTemplate, temperature: float = 0.7
+    ) -> Union[Dict, List, str]:
         """Generic method for text analysis with temperature control"""
-        prompt = ChatPromptTemplate.from_template(prompt_template)
 
-        # Pass temperature in the invoke call
-        response = await (prompt | self.llm).ainvoke({"text": text, "temperature": temperature})
+        configured_llm = self.llm.with_config({"temperature": temperature})
+
+        # Invoke the chain
+        response = await (prompt | configured_llm).ainvoke({"text": text})
         return response.content
 
     async def _analyze_sentiment(self, text: str) -> Dict[str, float]:
-        prompt = """
-        Analyze the sentiment in this text and return only a JSON object with these scores (must sum to 1.0):
-        - positive
-        - negative
-        - neutral
-        
-        Text: {text}
-        """
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                (
+                    "system",
+                    """You are a sentiment analyzer that returns only JSON.
+            The scores must sum to 1.0 and include: positive, negative, and neutral.""",
+                ),
+                ("user", "Analyze the sentiment in this text: {text}"),
+            ]
+        )
+
         response = await self.analyze_text(text, prompt, temperature=0.3)
         return await self._parse_response(response, "json")
 
     async def _extract_references(self, text: str) -> List[str]:
-        prompt = """
-        Extract all movie references from this text and return them as a comma-separated list.
-        Include direct mentions, director references, and clear film allusions.
-        
-        IMPORTANT: Return ONLY the comma-separated list of strings. Do not include any explanatory text before or after.
-        Format must be exactly as shown in this example:
-        [
-            "Before Sunrise",
-            "Before Sunset",
-            "The Matrix",
-            "The Lord of the Rings"
-        ]
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                (
+                    "system",
+                    """You are a movie reference extractor that returns only a comma-separated list.
+            Include direct mentions, director references, and clear film allusions.""",
+                ),
+                (
+                    "user",
+                    """Extract movie references from this text.
+            Return ONLY the comma-separated list, no explanatory text.
+            
+            Text: {text}""",
+                ),
+            ]
+        )
 
-        Text: {text}
-        """
         response = await self.analyze_text(text, prompt, temperature=0.2)
         return await self._parse_response(response, "list")
 
     async def _analyze_sentence_patterns(self, text: str) -> List[Dict[str, str]]:
-        prompt = """
-        Analyze this collection of movie reviews and identify the most common writing patterns.
-        
-        For each category below, identify EXACTLY ONE recurring pattern that appears frequently across multiple reviews:
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                (
+                    "system",
+                    """You analyze writing patterns in movie reviews.
+            Return EXACTLY 4 patterns (one per category) in a JSON array.""",
+                ),
+                (
+                    "user",
+                    """Analyze these reviews and identify common patterns for:
+            1. Opening sentences
+            2. Transition phrases
+            3. Closing statements
+            4. Comparative structures
 
-        1. How do the reviews typically start? (e.g., "Starts with director's name", "Opens with plot setup")
-        2. What phrases are commonly used to transition between thoughts? (e.g., "However,", "While", "Despite")
-        3. How do the reviews usually conclude? (e.g., "Ends with recommendation", "Closes with rating justification")
-        4. How are comparisons typically made? (e.g., "Reminds me of...", "Unlike [other film]...")
+            Format must be:
+            [
+                {{"type": "opening", "pattern": "pattern description"}},
+                {{"type": "transition", "pattern": "pattern description"}},
+                {{"type": "closing", "pattern": "pattern description"}},
+                {{"type": "comparative", "pattern": "pattern description"}}
+            ]
 
-        Return EXACTLY 4 patterns total (one per category) in a JSON array.
-        Format must be exactly as shown in this example:
-        [
-            {{"type": "opening", "pattern": "Begins with emotional reaction"}},
-            {{"type": "transition", "pattern": "Uses 'However' to contrast points"}},
-            {{"type": "closing", "pattern": "Ends with recommendation"}},
-            {{"type": "comparative", "pattern": "Reminds me of..."}}
-        ]
+            Reviews: {text}""",
+                ),
+            ]
+        )
 
-        Reviews to analyze: {text}
-        """
         response = await self.analyze_text(text, prompt, temperature=0.3)
         patterns = await self._parse_response(response, "json")
 

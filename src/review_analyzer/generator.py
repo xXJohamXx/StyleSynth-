@@ -26,35 +26,43 @@ class ReviewGenerator:
             n_results=5,
         )
 
-        prompt = ChatPromptTemplate.from_template("""
-        You are a Letterboxd user reviewing movies in my personal style, no need to be formal. 
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                # System message: Define the reviewer's characteristics and style
+                (
+                    "system",
+                    """You are a Letterboxd user reviewing movies in my personal style, no need to be formal.
 
-        Generate a review for '{title}'
-        
-        Similar movies I've watched:
-        {similar_movies}
+                My writing style characteristics:
+                - Sentiment preferences: {sentiment_scores}
+                - Common references: {references}
+                
+                Use these specific sentence patterns:
+                1. Opening: {opening_pattern}
+                2. Transitions: {transition_pattern}
+                3. Comparisons: {comparison_pattern}
+                4. Closing: {closing_pattern}""",
+                ),
+                # User message: Specific review request and requirements
+                (
+                    "user",
+                    """Generate a review for '{title}'
+                
+                Similar movies I've watched:
+                {similar_movies}
 
-        Consider these movies' genres, and themes when writing the review.
-        
-        My writing style characteristics:
-        - Sentiment preferences: {sentiment_scores}
-        - Common references: {references}
-        
-        Use these specific sentence patterns:
-        1. Opening: {opening_pattern}
-        2. Transitions: {transition_pattern}
-        3. Comparisons: {comparison_pattern}
-        4. Closing: {closing_pattern}
-        
-        Generate a review that:
-        - Recreates vibe and feeling of my reviews
-        - Uses these sentence patterns
-        - Must be approximately {avg_length} words long
-        - Considers my experience with similar films
-        - Matches my sentiment preferences
-        """)
+                Consider these movies' genres, and themes when writing the review.
+                
+                The review must:
+                - Recreate vibe and feeling of my reviews
+                - Use the specified sentence patterns
+                - Be approximately {avg_length} words long
+                - Consider my experience with similar films
+                - Match my sentiment preferences""",
+                ),
+            ]
+        )
 
-        # Prepare all variables for the template
         variables = {
             "title": movie_context.title,
             "similar_movies": self._format_similar_movies(similar_movies),
