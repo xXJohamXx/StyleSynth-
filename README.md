@@ -48,17 +48,16 @@ A Python tool to analyze personal Letterboxd review styles and generate LLM-powe
 
 ### Simple Usage Example
 
-1. **Check out the example script** in [`examples/simple_example.py`](examples/simple_example.py) which demonstrates basic usage of the library.
+1. **Check out the example script**  [`demo_review_generator.py`](demo_review_generator.py) which demonstrates basic usage of the library.
 
 2. **Run the script using Poetry**:
    ```bash
-   poetry run python examples/simple_example.py
+   poetry run python demo_review_generator.py
    ```
 
 Note: Make sure you have set up your OpenAI API key in the `.env` file before running the example.
 
-
-## Contributing
+![Demo Usage](example.gif)
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
