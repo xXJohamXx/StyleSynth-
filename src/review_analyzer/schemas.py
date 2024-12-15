@@ -22,7 +22,7 @@ class Movie(BaseModel):
             year=row.get("Year", 0),
             genres=row.get("genres", ""),
             runtime=row.get("runtimeMinutes", 0),
-            context=f"{row.get('name', '')} {row.get('genres', '')}",
+            context=f"{row.get('Name', '')} {row.get('genres', '')}",
         )
 
     def to_metadata(self) -> Dict:
