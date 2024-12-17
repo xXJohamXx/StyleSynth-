@@ -4,7 +4,7 @@ from typing import Dict, List, Union
 from langchain.prompts import ChatPromptTemplate
 from langchain.tools import Tool
 
-from .config import llm
+from src.review_analyzer.config import llm
 
 
 class LLMService:

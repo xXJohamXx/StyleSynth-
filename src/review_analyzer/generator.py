@@ -2,10 +2,9 @@ from typing import Dict, List
 
 from langchain.prompts import ChatPromptTemplate
 
+from src.review_analyzer.config import embeddings, llm
 from src.review_analyzer.schemas import GeneratedReview, MovieContext, PersonalReviewStyle
 from src.review_analyzer.vector_store import VectorStore
-
-from .config import embeddings, llm
 
 
 class ReviewGenerator:

@@ -10,10 +10,10 @@ import pandas as pd
 from slugify import slugify
 from tenacity import retry, stop_after_attempt, wait_exponential
 
-from .config import embeddings, llm
-from .llm import LLMService
-from .schemas import Movie, PersonalReviewStyle
-from .vector_store import VectorStore
+from src.review_analyzer.config import embeddings, llm
+from src.review_analyzer.llm import LLMService
+from src.review_analyzer.schemas import Movie, PersonalReviewStyle
+from src.review_analyzer.vector_store import VectorStore
 
 
 class ReviewStyleAnalyzer:
@@ -26,6 +26,12 @@ class ReviewStyleAnalyzer:
     async def learn_style(self, reviews_path: str, watched_path: str) -> PersonalReviewStyle:
         reviews_df = pd.read_csv(reviews_path)
         watched_df = pd.read_csv(watched_path)
+
+        # Check for empty DataFrames
+        if reviews_df.empty:
+            raise ValueError(f"No data found in the provided reviews CSV file: {reviews_path}")
+        if watched_df.empty:
+            raise ValueError(f"No data found in the provided watched movies CSV file: {watched_path}")
 
         print("Processing watched movies...")
         batch_size = 50
