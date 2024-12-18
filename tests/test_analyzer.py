@@ -11,10 +11,14 @@ async def mock_analyzer():
     with (
         patch('src.review_analyzer.analyzer.LLMService') as MockLLMService,
         patch('src.review_analyzer.analyzer.VectorStore') as MockVectorStore,
+        patch('src.review_analyzer.config.llm') as mock_llm,
+        patch('src.review_analyzer.config.embeddings') as mock_embeddings,
         patch('src.review_analyzer.analyzer.pd.read_csv') as mock_read_csv,
     ):
         _mock_llm_service = MockLLMService.return_value
         _mock_vector_store = MockVectorStore.return_value
+        _mock_llm = mock_llm.return_value
+        _mock_embeddings = mock_embeddings.return_value
 
         analyzer = ReviewStyleAnalyzer()
 
