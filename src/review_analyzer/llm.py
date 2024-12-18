@@ -17,37 +17,37 @@ class LLMService:
     ) -> Union[Dict, List, str]:
         """Generic method for text analysis with temperature control"""
 
-        configured_llm = self.llm.with_config({"temperature": temperature})
+        configured_llm = self.llm.with_config({'temperature': temperature})
 
         # Invoke the chain
-        response = await (prompt | configured_llm).ainvoke({"text": text})
+        response = await (prompt | configured_llm).ainvoke({'text': text})
         return response.content
 
     async def _analyze_sentiment(self, text: str) -> Dict[str, float]:
         prompt = ChatPromptTemplate.from_messages(
             [
                 (
-                    "system",
+                    'system',
                     """You are a sentiment analyzer that returns only JSON.
             The scores must sum to 1.0 and include: positive, negative, and neutral.""",
                 ),
-                ("user", "Analyze the sentiment in this text: {text}"),
+                ('user', 'Analyze the sentiment in this text: {text}'),
             ]
         )
 
         response = await self.analyze_text(text, prompt, temperature=0.3)
-        return await self._parse_response(response, "json")
+        return await self._parse_response(response, 'json')
 
     async def _extract_references(self, text: str) -> List[str]:
         prompt = ChatPromptTemplate.from_messages(
             [
                 (
-                    "system",
+                    'system',
                     """You are a movie reference extractor that returns only a comma-separated list.
             Include direct mentions, director references, and clear film allusions.""",
                 ),
                 (
-                    "user",
+                    'user',
                     """Extract movie references from this text.
             Return ONLY the comma-separated list, no explanatory text.
             
@@ -57,18 +57,18 @@ class LLMService:
         )
 
         response = await self.analyze_text(text, prompt, temperature=0.2)
-        return await self._parse_response(response, "list")
+        return await self._parse_response(response, 'list')
 
     async def _analyze_sentence_patterns(self, text: str) -> List[Dict[str, str]]:
         prompt = ChatPromptTemplate.from_messages(
             [
                 (
-                    "system",
+                    'system',
                     """You analyze writing patterns in movie reviews.
             Return EXACTLY 4 patterns (one per category) in a JSON array.""",
                 ),
                 (
-                    "user",
+                    'user',
                     """Analyze these reviews and identify common patterns for:
             1. Opening sentences
             2. Transition phrases
@@ -89,15 +89,15 @@ class LLMService:
         )
 
         response = await self.analyze_text(text, prompt, temperature=0.3)
-        patterns = await self._parse_response(response, "json")
+        patterns = await self._parse_response(response, 'json')
 
         # Validate pattern count
         if not patterns or len(patterns) != 4:
             return [
-                {"type": "opening", "pattern": "Starts with director mention"},
-                {"type": "transition", "pattern": "However, despite the"},
-                {"type": "closing", "pattern": "Ends with rating justification"},
-                {"type": "comparative", "pattern": "Reminds me of..."},
+                {'type': 'opening', 'pattern': 'Starts with director mention'},
+                {'type': 'transition', 'pattern': 'However, despite the'},
+                {'type': 'closing', 'pattern': 'Ends with rating justification'},
+                {'type': 'comparative', 'pattern': 'Reminds me of...'},
             ]
 
         return patterns
@@ -106,45 +106,45 @@ class LLMService:
         """Parse LLM response into structured data"""
         try:
             # Clean the response: remove markdown formatting if present
-            cleaned_response = response.strip("```json\n").strip("```").strip()
+            cleaned_response = response.strip('```json\n').strip('```').strip()
 
-            if output_type == "json":
+            if output_type == 'json':
                 return json.loads(cleaned_response)
-            elif output_type == "list":
+            elif output_type == 'list':
                 # Remove all unwanted characters and split into clean items
-                chars_to_remove = "[]\"'\n"
+                chars_to_remove = '[]"\'\n'
                 return [
                     item.strip()
-                    for item in cleaned_response.translate(str.maketrans("", "", chars_to_remove)).split(",")
+                    for item in cleaned_response.translate(str.maketrans('', '', chars_to_remove)).split(',')
                     if item.strip()
                 ]
             else:
-                return cleaned_response.replace("\n", "")
+                return cleaned_response.replace('\n', '')
 
         except json.JSONDecodeError as e:
-            print(f"Warning: Failed to parse JSON response: {e}")
-            print(f"Raw response: {response}")
-            return {} if output_type == "json" else []
+            print(f'Warning: Failed to parse JSON response: {e}')
+            print(f'Raw response: {response}')
+            return {} if output_type == 'json' else []
         except Exception as e:
-            print(f"Warning: Error parsing response: {e}")
-            print(f"Raw response: {response}")
-            return {} if output_type == "json" else []
+            print(f'Warning: Error parsing response: {e}')
+            print(f'Raw response: {response}')
+            return {} if output_type == 'json' else []
 
     def _initialize_tools(self) -> List[Tool]:
         return [
             Tool(
-                name="analyze_sentiment",
+                name='analyze_sentiment',
                 func=self._analyze_sentiment,
-                description="Analyze the sentiment of review text",
+                description='Analyze the sentiment of review text',
             ),
             Tool(
-                name="extract_movie_references",
+                name='extract_movie_references',
                 func=self._extract_references,
-                description="Extract movie references from review text",
+                description='Extract movie references from review text',
             ),
             Tool(
-                name="analyze_sentence_patterns",
+                name='analyze_sentence_patterns',
                 func=self._analyze_sentence_patterns,
-                description="Analyze sentence patterns in movie reviews",
+                description='Analyze sentence patterns in movie reviews',
             ),
         ]

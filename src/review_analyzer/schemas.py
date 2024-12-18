@@ -15,23 +15,23 @@ class Movie(BaseModel):
     context: str
 
     @classmethod
-    def from_row(cls, row: pd.Series, movie_id: str) -> "Movie":
+    def from_row(cls, row: pd.Series, movie_id: str) -> 'Movie':
         return cls(
             id=movie_id,
-            title=row.get("Name", ""),
-            year=row.get("Year", 0),
-            genres=row.get("genres", ""),
-            runtime=row.get("runtimeMinutes", 0),
+            title=row.get('Name', ''),
+            year=row.get('Year', 0),
+            genres=row.get('genres', ''),
+            runtime=row.get('runtimeMinutes', 0),
             context=f"{row.get('Name', '')} {row.get('genres', '')}",
         )
 
     def to_metadata(self) -> Dict:
         return {
-            "id": self.id,
-            "title": self.title,
-            "year": self.year,
-            "genres": self.genres,
-            "runtime": self.runtime,
+            'id': self.id,
+            'title': self.title,
+            'year': self.year,
+            'genres': self.genres,
+            'runtime': self.runtime,
         }
 
 

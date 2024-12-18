@@ -29,22 +29,22 @@ class ReviewStyleAnalyzer:
 
         # Check for empty DataFrames
         if reviews_df.empty:
-            raise ValueError(f"No data found in the provided reviews CSV file: {reviews_path}")
+            raise ValueError(f'No data found in the provided reviews CSV file: {reviews_path}')
         if watched_df.empty:
-            raise ValueError(f"No data found in the provided watched movies CSV file: {watched_path}")
+            raise ValueError(f'No data found in the provided watched movies CSV file: {watched_path}')
 
-        print("Processing watched movies...")
+        print('Processing watched movies...')
         batch_size = 50
         total_movies = len(watched_df)
 
         for start_idx in range(0, total_movies, batch_size):
             batch = watched_df.iloc[start_idx : min(start_idx + batch_size, total_movies)]
-            print(f"Processing batch {start_idx//batch_size + 1}/{(total_movies + batch_size - 1)//batch_size}")
+            print(f'Processing batch {start_idx//batch_size + 1}/{(total_movies + batch_size - 1)//batch_size}')
 
             try:
                 await self._process_batch(batch)
             except Exception as e:
-                print(f"Error processing batch: {e}")
+                print(f'Error processing batch: {e}')
                 continue
 
         style_components = await asyncio.gather(
@@ -69,7 +69,7 @@ class ReviewStyleAnalyzer:
         ]
 
         if new_movies:
-            print(f"Generating embeddings for {len(new_movies)} new movies...")
+            print(f'Generating embeddings for {len(new_movies)} new movies...')
 
             # Generate embeddings in parallel
             embeddings = await asyncio.gather(*(self.embeddings.aembed_query(movie.context) for movie in new_movies))
@@ -84,13 +84,13 @@ class ReviewStyleAnalyzer:
                 )
             )
         else:
-            print("All movies in batch already exist in database.")
+            print('All movies in batch already exist in database.')
 
     async def _analyze_vocabulary(self, reviews_df: pd.DataFrame) -> Dict:
         """Analyze vocabulary patterns in reviews"""
-        all_reviews = " ".join(reviews_df["Review"].tolist())
+        all_reviews = ' '.join(reviews_df['Review'].tolist())
 
-        average_length = int(reviews_df["Review"].str.split().str.len().mean())
+        average_length = int(reviews_df['Review'].str.split().str.len().mean())
 
         # Use the tools in parallel
         results = await asyncio.gather(
@@ -99,15 +99,15 @@ class ReviewStyleAnalyzer:
         )
 
         return {
-            "sentiment": results[0],
-            "references": results[1],
-            "average_length": average_length,
+            'sentiment': results[0],
+            'references': results[1],
+            'average_length': average_length,
         }
 
     async def _analyze_sentences(self, reviews_df: pd.DataFrame) -> List[Dict[str, str]]:
         """Analyze common sentence structures and patterns in reviews"""
 
-        all_reviews = " ".join(reviews_df["Review"].tolist())
+        all_reviews = ' '.join(reviews_df['Review'].tolist())
         results = await self.llm_service._analyze_sentence_patterns(all_reviews)
 
         return results
@@ -119,7 +119,7 @@ class ReviewStyleAnalyzer:
 
         return PersonalReviewStyle(
             sentence_patterns=style_components[1],
-            average_length=vocabulary_data["average_length"],
-            sentiment_scores=vocabulary_data["sentiment"],
-            common_references=vocabulary_data["references"],
+            average_length=vocabulary_data['average_length'],
+            sentiment_scores=vocabulary_data['sentiment'],
+            common_references=vocabulary_data['references'],
         )

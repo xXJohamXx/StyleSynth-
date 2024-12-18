@@ -29,7 +29,7 @@ class ReviewGenerator:
             [
                 # System message: Define the reviewer's characteristics and style
                 (
-                    "system",
+                    'system',
                     """You are a Letterboxd user reviewing movies in my personal style, no need to be formal.
 
                 My writing style characteristics:
@@ -44,7 +44,7 @@ class ReviewGenerator:
                 ),
                 # User message: Specific review request and requirements
                 (
-                    "user",
+                    'user',
                     """Generate a review for '{title}'
                 
                 Similar movies I've watched:
@@ -63,16 +63,16 @@ class ReviewGenerator:
         )
 
         variables = {
-            "title": movie_context.title,
-            "similar_movies": self._format_similar_movies(similar_movies),
-            "sentiment_scores": str(self.style.sentiment_scores),
-            "references": ", ".join(self.style.common_references[:5]),
-            "opening_pattern": self.style.sentence_patterns[0]["pattern"],
-            "transition_pattern": self.style.sentence_patterns[1]["pattern"],
-            "comparison_pattern": self.style.sentence_patterns[2]["pattern"],
-            "closing_pattern": self.style.sentence_patterns[3]["pattern"],
-            "avg_length": self.style.average_length,
-            "temperature": temperature,
+            'title': movie_context.title,
+            'similar_movies': self._format_similar_movies(similar_movies),
+            'sentiment_scores': str(self.style.sentiment_scores),
+            'references': ', '.join(self.style.common_references[:5]),
+            'opening_pattern': self.style.sentence_patterns[0]['pattern'],
+            'transition_pattern': self.style.sentence_patterns[1]['pattern'],
+            'comparison_pattern': self.style.sentence_patterns[2]['pattern'],
+            'closing_pattern': self.style.sentence_patterns[3]['pattern'],
+            'avg_length': self.style.average_length,
+            'temperature': temperature,
         }
 
         response = await (prompt | self.llm).ainvoke(variables)
@@ -97,7 +97,7 @@ class ReviewGenerator:
 
         # Check sentence pattern usage
         for pattern in self.style.sentence_patterns:
-            if pattern["pattern"].lower() in review_text.lower():
+            if pattern['pattern'].lower() in review_text.lower():
                 confidence *= 1.1
 
         return min(1.0, confidence)
@@ -108,18 +108,18 @@ class ReviewGenerator:
 
         # Check for sentence patterns
         for pattern in self.style.sentence_patterns:
-            if pattern["pattern"].lower() in review_text.lower():
+            if pattern['pattern'].lower() in review_text.lower():
                 elements.append(f"Used {pattern['type']} pattern")
 
         # Check for common references
         for ref in self.style.common_references:
             if ref.lower() in review_text.lower():
-                elements.append(f"Referenced {ref}")
+                elements.append(f'Referenced {ref}')
 
         # Check length adherence
         actual_length = len(review_text.split())
         if abs(actual_length - self.style.average_length) <= self.style.average_length * 0.2:
-            elements.append("Matched target length")
+            elements.append('Matched target length')
 
         return elements
 
@@ -127,21 +127,21 @@ class ReviewGenerator:
         """Format similar movies in a clear, structured way for the LLM"""
         formatted = []
         for movie in similar_movies:
-            metadata = movie["metadata"]
+            metadata = movie['metadata']
             # Handle genres that might come as string or list
-            genres = metadata.get("genres", "")
+            genres = metadata.get('genres', '')
             if isinstance(genres, str):
-                genres = [g.strip() for g in genres.split(",")]
+                genres = [g.strip() for g in genres.split(',')]
 
             formatted.append(
                 f"• {metadata.get('title', 'Unknown')} ({metadata.get('year', 'N/A')})\n"
                 f"  Genres: {', '.join(genres)}\n"
                 f"  Runtime: {metadata.get('runtime', 'N/A')} minutes"
             )
-        return "\n\n".join(formatted)
+        return '\n\n'.join(formatted)
 
     def _format_sentence_patterns(self) -> str:
         formatted = []
         for pattern in self.style.sentence_patterns:
             formatted.append(f"- {pattern['type']}: {pattern['pattern']}")
-        return "\n".join(formatted)
+        return '\n'.join(formatted)

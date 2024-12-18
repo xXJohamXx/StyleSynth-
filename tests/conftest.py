@@ -13,10 +13,10 @@ from src.review_analyzer.vector_store import VectorStore
 def test_sample_batch():
     return pd.DataFrame(
         {
-            "Name": ["Inception", "The Matrix"],
-            "Year": [2010, 1999],
-            "genres": ["Action,Sci-Fi", "Action,Sci-Fi"],
-            "runtimeMinutes": [148, 136],
+            'Name': ['Inception', 'The Matrix'],
+            'Year': [2010, 1999],
+            'genres': ['Action,Sci-Fi', 'Action,Sci-Fi'],
+            'runtimeMinutes': [148, 136],
         }
     )
 
@@ -24,10 +24,10 @@ def test_sample_batch():
 @pytest.fixture
 def test_style_profile():
     return PersonalReviewStyle(
-        sentence_patterns=[{"type": "opening", "pattern": "Starts with a quote"}],
+        sentence_patterns=[{'type': 'opening', 'pattern': 'Starts with a quote'}],
         average_length=100,
-        sentiment_scores={"positive": 0.5, "negative": 0.3, "neutral": 0.2},
-        common_references=["Inception", "The Matrix"],
+        sentiment_scores={'positive': 0.5, 'negative': 0.3, 'neutral': 0.2},
+        common_references=['Inception', 'The Matrix'],
     )
 
 
@@ -35,21 +35,21 @@ def test_style_profile():
 def test_movie_data():
     unique_id = str(uuid.uuid4())  # Generate a unique ID
     return {
-        "title": "Inception",
-        "metadata": {
-            "id": f"inception-{unique_id}",
-            "title": "Inception",
-            "year": 2010,
-            "genres": "Action,Sci-Fi",
-            "runtime": 148,
+        'title': 'Inception',
+        'metadata': {
+            'id': f'inception-{unique_id}',
+            'title': 'Inception',
+            'year': 2010,
+            'genres': 'Action,Sci-Fi',
+            'runtime': 148,
         },
-        "embedding": [0.1, 0.2, 0.3],
+        'embedding': [0.1, 0.2, 0.3],
     }
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope='session')
 def test_vector_store():
-    persist_dir = Path("./.test_vectordb")
+    persist_dir = Path('./.test_vectordb')
     store = VectorStore(persist_dir=str(persist_dir))
 
     yield store
@@ -57,4 +57,4 @@ def test_vector_store():
     try:
         shutil.rmtree(persist_dir)
     except Exception as e:
-        print(f"Error cleaning up directory: {e}")
+        print(f'Error cleaning up directory: {e}')
