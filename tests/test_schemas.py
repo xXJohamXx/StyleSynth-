@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from review_analyzer.schemas import GeneratedReview, Movie, MovieContext, PersonalReviewStyle
+from src.review_analyzer.schemas import GeneratedReview, Movie, MovieContext, PersonalReviewStyle
 
 
 def test_movie_schema_valid_data():
