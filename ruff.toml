@@ -1,8 +1,5 @@
-extend-include = ["*.ipynb"]
 line-length = 120
+ignore = ["E402"]
 
 [format]
 quote-style = "single"
-
-[tool.ruff]
-ignore = ["E402"]
