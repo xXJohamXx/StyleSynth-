@@ -3,13 +3,7 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 
-with patch('src.review_analyzer.config.llm'), patch('src.review_analyzer.config.embeddings'):
-    from src.review_analyzer.analyzer import ReviewStyleAnalyzer
-
-
-@pytest.fixture(autouse=True)
-def set_openai_api_key(monkeypatch):
-    monkeypatch.setenv('OPENAI_API_KEY', 'test_key')
+from src.review_analyzer.analyzer import ReviewStyleAnalyzer
 
 
 @pytest.fixture
