@@ -3,6 +3,13 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 
+
+# Use monkeypatch to set the environment variable before importing
+@pytest.fixture(autouse=True)
+def set_openai_api_key(monkeypatch):
+    monkeypatch.setenv('OPENAI_API_KEY', 'test_key')
+
+
 from src.review_analyzer.analyzer import ReviewStyleAnalyzer
 
 
