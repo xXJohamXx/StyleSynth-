@@ -7,31 +7,31 @@ from numpy.testing import assert_array_almost_equal
 
 async def test_store_movie_sunny_day(test_vector_store, test_movie_data):
     result = await test_vector_store.store_movie(
-        test_movie_data["title"], test_movie_data["metadata"], test_movie_data["embedding"]
+        test_movie_data['title'], test_movie_data['metadata'], test_movie_data['embedding']
     )
     assert result
 
 
 async def test_store_movie_rainy_day(test_vector_store, test_movie_data):
     result = await test_vector_store.store_movie(
-        test_movie_data["title"], {"mock": "metadata"}, test_movie_data["embedding"]
+        test_movie_data['title'], {'mock': 'metadata'}, test_movie_data['embedding']
     )
-    assert isinstance(result, bool), "Result should be a boolean"
+    assert isinstance(result, bool), 'Result should be a boolean'
     assert result is False
 
 
 async def test_get_movie_by_id(test_vector_store, test_movie_data):
     await test_vector_store.store_movie(
-        test_movie_data["title"], test_movie_data["metadata"], test_movie_data["embedding"]
+        test_movie_data['title'], test_movie_data['metadata'], test_movie_data['embedding']
     )
-    result = await test_vector_store.get_movie_by_id(test_movie_data["metadata"]["id"])
+    result = await test_vector_store.get_movie_by_id(test_movie_data['metadata']['id'])
 
-    assert result["id"] == test_movie_data["metadata"]["id"]
-    assert result["document"] == "Inception"
-    assert result["metadata"] == test_movie_data["metadata"]
+    assert result['id'] == test_movie_data['metadata']['id']
+    assert result['document'] == 'Inception'
+    assert result['metadata'] == test_movie_data['metadata']
     assert_array_almost_equal(
-        np.array(result["embedding"]),
-        np.array(test_movie_data["embedding"]),
+        np.array(result['embedding']),
+        np.array(test_movie_data['embedding']),
     )
 
 
@@ -43,10 +43,10 @@ async def test_find_similar_movies(test_vector_store):
 
 
 async def test_store_movie_exception_handling_with_logging(test_vector_store, test_movie_data, caplog):
-    with patch.object(test_vector_store.movies_collection, "add", side_effect=Exception("Mocked exception")):
+    with patch.object(test_vector_store.movies_collection, 'add', side_effect=Exception('Mocked exception')):
         with caplog.at_level(logging.ERROR):
             result = await test_vector_store.store_movie(
-                test_movie_data["title"], test_movie_data["metadata"], test_movie_data["embedding"]
+                test_movie_data['title'], test_movie_data['metadata'], test_movie_data['embedding']
             )
             assert result is False
-            assert "Error storing movie Inception: Mocked exception" in caplog.text
+            assert 'Error storing movie Inception: Mocked exception' in caplog.text

@@ -4,3 +4,5 @@ line-length = 120
 [format]
 quote-style = "single"
 
+[tool.ruff]
+ignore = ["E402"]
