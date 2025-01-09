@@ -51,10 +51,14 @@ def test_movie_context_invalid_data_type():
 
 def test_generated_review_valid_data():
     review = GeneratedReview(
-        text='Great movie with stunning visuals.', style_confidence=0.95, key_elements_used=['visuals', 'story']
+        text='Great movie with stunning visuals.',
+        style_confidence={'length': 0.95, 'opening': 0.8, 'transition': 0.7, 'closing': 0.9, 'comparative': 0.85},
+        key_elements_used=['visuals', 'story'],
     )
+
     assert review.text == 'Great movie with stunning visuals.'
-    assert review.style_confidence == 0.95
+    assert isinstance(review.style_confidence, dict)
+    assert all(0 <= score <= 1 for score in review.style_confidence.values())
     assert review.key_elements_used == ['visuals', 'story']
 
 
