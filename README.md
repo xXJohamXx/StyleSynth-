@@ -1,5 +1,10 @@
 # StyleSynth 
 
+
+[![ci-cd](https://github.com/xXJohamXx/StyleSynth/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/xXJohamXx/StyleSynth//actions/workflows/ci-cd.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-390/)
+
 🎬 **Hey there, Movie Buff!** 🍿
 
 Do you use [Letterboxd](https://letterboxd.com/) to track and review all the amazing films you've watched? 🎥✨
@@ -16,7 +21,7 @@ Introducing **StyleSynth** – your new best friend in the world of movie review
 
 This Python tool analyzes your personal Letterboxd review style and whips up LLM-powered movie reviews that are tailored to sound just like you! 🤖🎞️
 
-This project is not just a tool; it’s a **proof of concept** showcasing the magic of NLP and LLMs to create something fun and useful for all you movie enthusiasts out there! 🌟
+This project is not just a tool; it’s a **proof of concept** showcasing the power of NLP and LLMs to create something fun and useful for all you movie enthusiasts out there! 🌟
 
 **Stay tuned for more features and improvements!** 🚀
 
