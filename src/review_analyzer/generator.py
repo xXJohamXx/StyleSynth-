@@ -1,3 +1,4 @@
+import json
 from typing import Dict, List
 
 from langchain.prompts import ChatPromptTemplate
@@ -13,6 +14,7 @@ class ReviewGenerator:
         self.llm = llm
         self.embeddings = embeddings
         self.vector_store = VectorStore()
+        self._pattern_scores = {}
 
     async def generate_review(self, movie_context: MovieContext, temperature: float = 0.9) -> GeneratedReview:
         """Generate a review based on movie context and similar movies"""
@@ -81,45 +83,85 @@ class ReviewGenerator:
 
         return GeneratedReview(
             text=review_text,
-            style_confidence=self._calculate_style_confidence(review_text),
+            style_confidence=await self._calculate_style_confidence(review_text),
             key_elements_used=self._extract_key_elements(review_text),
         )
 
-    def _calculate_style_confidence(self, review_text: str) -> float:
-        """Calculate how well the generated review matches the user's style."""
-        confidence = 1.0
+    async def _calculate_style_confidence(self, review_text: str) -> Dict[str, float]:
+        """
+        Calculate how well the generated review matches the user's style.
+        Returns a dictionary with individual confidence scores for each pattern and length.
+        Raises:
+            ValueError: If the LLM response cannot be parsed or is not in the expected format.
+        """
+        confidence_scores = {
+            'length': 0.0,
+            'opening': 0.0,
+            'transition': 0.0,
+            'closing': 0.0,
+            'comparative': 0.0,
+        }
 
         # Check length similarity
         target_length = self.style.average_length
         actual_length = len(review_text.split())
         length_diff = abs(target_length - actual_length) / target_length
-        confidence *= max(0.5, 1 - length_diff)
+        confidence_scores['length'] = 1 - length_diff
 
-        # Check sentence pattern usage
-        for pattern in self.style.sentence_patterns:
-            if pattern['pattern'].lower() in review_text.lower():
-                confidence *= 1.1
+        # Get pattern scores from LLM
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                (
+                    'system',
+                    """You are a writing style analyzer. Analyze how well a review matches given patterns.
+                You must return a valid JSON object containing ONLY numeric scores between 0 and 1.
+                Do not include any additional text, explanations, or formatting.""",
+                ),
+                (
+                    'user',
+                    """Review: {review}
+                
+                Patterns to analyze:
+                {patterns}
+                
+                Return a valid JSON object exactly like this:
+                {{"opening": 0.8, "transition": 0.7, "closing": 0.9, "comparative": 0.6}}
+                
+                Use only numbers between 0 and 1 for scores. Do not include any other text.""",
+                ),
+            ]
+        )
 
-        return min(1.0, confidence)
+        variables = {
+            'review': review_text,
+            'patterns': '\n'.join(f"- {p['type']}: {p['pattern']}" for p in self.style.sentence_patterns),
+        }
+
+        response = await (prompt | self.llm.with_config({'temperature': 0.1})).ainvoke(variables)
+        try:
+            pattern_scores = json.loads(response.content.strip())
+
+            for pattern in self.style.sentence_patterns:
+                pattern_type = pattern['type']
+                score = float(pattern_scores[pattern_type])
+                if not 0 <= score <= 1:
+                    raise ValueError(f'Invalid score range for {pattern_type}: {score}')
+                confidence_scores[pattern_type] = score
+
+        except (ValueError, json.JSONDecodeError) as e:
+            print(f'Error parsing response: {str(e)}')
+            raise ValueError(f'Failed to analyze review style: {str(e)}') from e
+
+        return confidence_scores
 
     def _extract_key_elements(self, review_text: str) -> List[str]:
         """Extract key stylistic elements used in the generated review."""
         elements = []
 
-        # Check for sentence patterns
-        for pattern in self.style.sentence_patterns:
-            if pattern['pattern'].lower() in review_text.lower():
-                elements.append(f"Used {pattern['type']} pattern")
-
         # Check for common references
         for ref in self.style.common_references:
             if ref.lower() in review_text.lower():
                 elements.append(f'Referenced {ref}')
-
-        # Check length adherence
-        actual_length = len(review_text.split())
-        if abs(actual_length - self.style.average_length) <= self.style.average_length * 0.2:
-            elements.append('Matched target length')
 
         return elements
 

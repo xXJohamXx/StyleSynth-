@@ -53,5 +53,5 @@ class MovieContext(BaseModel):
 
 class GeneratedReview(BaseModel):
     text: str
-    style_confidence: float
+    style_confidence: Dict[str, float]
     key_elements_used: List[str]
