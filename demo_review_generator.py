@@ -59,7 +59,7 @@ async def demo_review_generation(movie: MovieContext):
     similar_table.add_column('Title', style='cyan')
     similar_table.add_column('Year', style='green')
     similar_table.add_column('Genres', style='blue')
-    similar_table.add_column('Runtimw', style='green')
+    similar_table.add_column('Runtime', style='green')
 
     for m in similar_movies:
         metadata = m['metadata']
