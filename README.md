@@ -86,9 +86,6 @@ Note: Make sure you have set up your OpenAI API key in the `.env` file before ru
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## System Architecture
 
@@ -142,12 +139,16 @@ graph TB
 ```
 
 ### System Architecture Legend
-<table>
-<tr>
-  <td style="background-color: #fff3e0; border: 2px solid #e65100; padding: 8px; color: #000000;"><b>📁 Input Files</b></td>
-  <td style="background-color: #f3e5f5; border: 2px solid #4a148c; padding: 8px; color: #000000;"><b>⚙️ Core Processes</b></td>
-  <td style="background-color: #d5e8d4; border: 2px solid #82b366; padding: 8px; color: #000000;"><b>🤖 LLM Operations</b></td>
-  <td style="background-color: #f8cecc; border: 2px solid #b85450; padding: 8px; color: #000000;"><b>🔄 Vector Store Operations</b></td>
-  <td style="background-color: #bbdefb; border: 2px solid #0d47a1; padding: 8px; color: #000000;"><b>📝 Output</b></td>
-</tr>
-</table>
+
+| Type | Description |
+|:---:|:---|
+| 📁 | **Input Files (Orange)**  - CSV files and user movie query |
+| ⚙️ | **Core Processes (Purple)** - Main processing components |
+| 🤖 | **LLM Operations (Green)** - Language model interactions |
+| 🔄 | **Vector Store Operations (Red)** - Embedding and similarity search |
+| 📝 | **Output (Blue)** - Generated review and analysis |
+
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
