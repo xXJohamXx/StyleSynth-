@@ -98,13 +98,13 @@ graph TB
     classDef vectorb_db fill:#f8cecc,stroke:#b85450,stroke-width:2px
     classDef output fill:#bbdefb,stroke:#0d47a1 
 
-    subgraph Input["📁 Input Files"]
+    subgraph Input["<h3>📁 Input Files<h3>"]
         R[(Letterboxd Reviews csv)]:::input
         W[(Watched Movies csv)]:::input
         Q[(User Movie Query)]:::input
     end
 
-    subgraph Analyzer["<h3>🔍 Learn Style Pipeline"]
+    subgraph Analyzer["<h3>🔍 Learn Style Pipeline<h3>"]
         RSA["Style Analyzer<br/>(Core Process)"]:::process
         AV["Vocabulary Analysis<br/>(Async / LLM)"]:::llm
         AS["Sentence Analysis<br/>(Async / LLM)"]:::llm
@@ -116,7 +116,7 @@ graph TB
         AV & AS  --> PRS
     end
 
-    subgraph Generator["🎬 Review Generation"]
+    subgraph Generator["<h3>🎬 Review Generation<h3>"]
         RG["Review Generator<br/>(Core Process)"]:::process
         FS["Similar Movies<br/>Search"]:::vectorb_db
         EQ["Embed User Movie Query <br/>(LLM)"]:::vectorb_db
@@ -125,7 +125,7 @@ graph TB
         RG --> EQ --> FS --> GR
     end
 
-    subgraph Output["📝 Generated Review"]
+    subgraph Output["<h3>📝 Generated Review<h3>"]
         RT["Review Text"]:::output
         SC["Style Match<br/>Confidence"]:::output
         RE["Style Elements<br/>Used"]:::output
@@ -137,7 +137,6 @@ graph TB
     PRS ==> RG
     GR ==> RT & SC & RE
 ```
-
 ### System Architecture Legend
 
 | Type | Description |
