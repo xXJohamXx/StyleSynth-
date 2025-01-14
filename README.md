@@ -5,6 +5,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-390/)
 
+![](StyleSynth_logo.png)
+
 🎬 **Hey there, Movie Buff!** 🍿
 
 Do you use [Letterboxd](https://letterboxd.com/) to track and review all the amazing films you've watched? 🎥✨
@@ -87,3 +89,65 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## System Architecture
+
+```mermaid
+graph TB
+    %% Style definitions
+    classDef input fill:#fff3e0,stroke:#e65100
+    classDef process fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef llm fill:#d5e8d4,stroke:#82b366,stroke-width:2px
+    classDef vectorb_db fill:#f8cecc,stroke:#b85450,stroke-width:2px
+    classDef output fill:#bbdefb,stroke:#0d47a1 
+
+    subgraph Input["📁 Input Files"]
+        R[(Letterboxd Reviews csv)]:::input
+        W[(Watched Movies csv)]:::input
+        Q[(User Movie Query)]:::input
+    end
+
+    subgraph Analyzer["<h3>🔍 Learn Style Pipeline"]
+        RSA["Style Analyzer<br/>(Core Process)"]:::process
+        AV["Vocabulary Analysis<br/>(Async / LLM)"]:::llm
+        AS["Sentence Analysis<br/>(Async / LLM)"]:::llm
+        EM["Movie Embeddings<br/>(Async / LLM)"]:::vectorb_db
+        PRS["Personal Style<br/>Profile"]:::output
+        
+        RSA --> AV & AS
+        RSA --> EM
+        AV & AS  --> PRS
+    end
+
+    subgraph Generator["🎬 Review Generation"]
+        RG["Review Generator<br/>(Core Process)"]:::process
+        FS["Similar Movies<br/>Search"]:::vectorb_db
+        EQ["Embed User Movie Query <br/>(LLM)"]:::vectorb_db
+        GR["Generate Review<br/>(LLM)"]:::llm
+        
+        RG --> EQ --> FS --> GR
+    end
+
+    subgraph Output["📝 Generated Review"]
+        RT["Review Text"]:::output
+        SC["Style Match<br/>Confidence"]:::output
+        RE["Style Elements<br/>Used"]:::output
+    end
+
+    %% Main Flow Connections
+    R & W ==> RSA
+    Q ==> RG
+    PRS ==> RG
+    GR ==> RT & SC & RE
+```
+
+### System Architecture Legend
+<table>
+<tr>
+  <td style="background-color: #fff3e0; border: 2px solid #e65100; padding: 8px; color: #000000;"><b>📁 Input Files</b></td>
+  <td style="background-color: #f3e5f5; border: 2px solid #4a148c; padding: 8px; color: #000000;"><b>⚙️ Core Processes</b></td>
+  <td style="background-color: #d5e8d4; border: 2px solid #82b366; padding: 8px; color: #000000;"><b>🤖 LLM Operations</b></td>
+  <td style="background-color: #f8cecc; border: 2px solid #b85450; padding: 8px; color: #000000;"><b>🔄 Vector Store Operations</b></td>
+  <td style="background-color: #bbdefb; border: 2px solid #0d47a1; padding: 8px; color: #000000;"><b>📝 Output</b></td>
+</tr>
+</table>
