@@ -19,7 +19,7 @@ class ReviewGenerator:
     async def generate_review(self, movie_context: MovieContext, temperature: float = 0.9) -> GeneratedReview:
         """Generate a review based on movie context and similar movies"""
 
-        movie_query = f"{movie_context.title} {' '.join(movie_context.genres)}"
+        movie_query = movie_context.get_embedding_context()
         query_embedding = await self.embeddings.aembed_query(movie_query)
 
         similar_movies = await self.vector_store.find_similar_movies(
